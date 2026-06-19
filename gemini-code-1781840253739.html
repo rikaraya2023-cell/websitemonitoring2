@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SIMPORA — Executive Monitoring Dashboard</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind Custom Configuration -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: {
+              50: '#eef2f9', 100: '#d9e1f1', 200: '#b4c4e1', 300: '#869fcd',
+              400: '#5878b1', 500: '#3c5a93', 600: '#2d4675', 700: '#22345b',
+              800: '#142442', 900: '#0c1830', 950: '#070f20'
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['"Sora"', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #070f20; }
+    .font-display { font-family: 'Sora', sans-serif; }
+    .glass-panel {
+      background: rgba(12, 24, 48, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .industrial-grid {
+      background-image: radial-gradient(rgba(20, 184, 166, 0.04) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    @keyframes pulse-red {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.4; }
+    }
+    .pulse-danger { animation: pulse-red 1.5s infinite; }
+  </style>
+</head>
+<body class="text-slate-200 min-h-screen industrial-grid pb-12">
+
+  <!-- ==========================================
+        HEADER / TOP NAVIGATION
+  =========================================== -->
+  <header class="sticky top-0 z-40 border-b border-white/5 bg-navy-950/80 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="h-9 w-9 rounded-xl bg-gradient-to-br from-teal-400 to-blue-600 grid place-items-center font-display font-extrabold text-white shadow-lg">S</div>
+        <div>
+          <h1 class="font-display font-bold text-base text-white tracking-tight leading-none">SIMPORA</h1>
+          <p class="text-[10px] text-teal-400 font-mono tracking-wider mt-1 uppercase">Sistem Monitoring Alat Peraga Promosi Realtime</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="#form-section" class="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-teal-500 hover:bg-teal-400 text-navy-950 text-xs font-bold transition">
+          <i data-lucide="plus-circle" class="h-4 w-4"></i> Update Data Lapangan
+        </a>
+        <div class="text-right hidden md:block">
+          <p class="text-[11px] text-slate-400 font-mono" id="live-date">Jumat, 19 Juni 2026</p>
+          <p class="text-xs font-bold text-teal-400 font-mono" id="live-clock">00:00:00 WIB</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 space-y-8">
+
+    <!-- ==========================================
+          KPI METRICS COUNTER
+    =========================================== -->
+    <section class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+      <div class="glass-panel p-4 rounded-2xl border-l-4 border-l-blue-500">
+        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Kapasitas</p>
+        <p class="font-display font-black text-2xl text-white mt-1">20 <span class="text-xs font-sans font-normal text-slate-400">Slot</span></p>
+      </div>
+      <div class="glass-panel p-4 rounded-2xl border-l-4 border-l-emerald-500">
+        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Terpasang</p>
+        <p id="kpi-terpasang" class="font-display font-black text-2xl text-emerald-400 mt-1">0</p>
+      </div>
+      <div class="glass-panel p-4 rounded-2xl border-l-4 border-l-amber-500">
+        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Sedang Diperbaiki</p>
+        <p id="kpi-diperbaiki" class="font-display font-black text-2xl text-amber-400 mt-1">0</p>
+      </div>
+      <div class="glass-panel p-4 rounded-2xl border-l-4 border-l-orange-500">
+        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Rusak</p>
+        <p id="kpi-rusak" class="font-display font-black text-2xl text-orange-400 mt-1">0</p>
+      </div>
+      <div class="glass-panel col-span-2 lg:col-span-1 p-4 rounded-2xl border-l-4 border-l-rose-500">
+        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Hilang</p>
+        <p id="kpi-hilang" class="font-display font-black text-2xl text-rose-500 mt-1">0</p>
+      </div>
+    </section>
+
+    <!-- ==========================================
+          VISUAL DASHBOARD: 10 TIANG INTERAKTIF
+    =========================================== -->
+    <section>
+      <div class="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+        <div>
+          <h2 class="font-display font-bold text-xl text-white">Visual Grid Node Utama</h2>
+          <p class="text-xs text-slate-400">Status matriks 10 tiang pemantauan mandiri secara spasial.</p>
+        </div>
+        <button onclick="resetToDefault()" class="text-xs text-slate-400 hover:text-rose-400 flex items-center gap-1 transition">
+          <i data-lucide="refresh-cw" class="h-3 w-3"></i> Reset Data Default
+        </button>
+      </div>
+
+      <div id="tiang-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+        <!-- Render 10 Tiang Node Otomatis via JavaScript -->
+      </div>
+    </section>
+
+    <!-- ==========================================
+          FORM INPUT DATA (CONTROL CENTER)
+    =========================================== -->
+    <section id="form-section" class="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-4">
+      <div class="lg:col-span-2 glass-panel p-6 sm:p-8 rounded-3xl space-y-6">
+        <div>
+          <h2 class="font-display font-bold text-lg text-white flex items-center gap-2">
+            <i data-lucide="edit-3" class="text-teal-400 h-5 w-5"></i> Pembaruan Status Atribut Lapangan
+          </h2>
+          <p class="text-xs text-slate-400 mt-1">Pilih target koordinat tiang dan isi form di bawah untuk memperbarui parameter sistem.</p>
+        </div>
+
+        <form id="simpora-form" onsubmit="handleFormSubmit(event)" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-bold uppercase text-slate-400 mb-1.5 tracking-wider">Nomor Tiang Target</label>
+              <select id="input-tiang" class="w-full bg-navy-900 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-teal-400" onchange="syncFormLocation()">
+                <!-- Loop 1-10 -->
+                <option value="1">Tiang 01</option><option value="2">Tiang 02</option><option value="3">Tiang 03</option><option value="4">Tiang 04</option><option value="5">Tiang 05</option>
+                <option value="6">Tiang 06</option><option value="7">Tiang 07</option><option value="8">Tiang 08</option><option value="9">Tiang 09</option><option value="10">Tiang 10</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase text-slate-400 mb-1.5 tracking-wider">Target Slot Umbul</label>
+              <select id="input-slot" class="w-full bg-navy-900 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-teal-400">
+                <option value="umbulA">Umbul A (Sisi Kiri)</option>
+                <option value="umbulB">Umbul B (Sisi Kanan)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase text-slate-400 mb-1.5 tracking-wider">Kondisi Status Atribut</label>
+              <select id="input-status" class="w-full bg-navy-900 border border-white/10 rounded-xl px-3 py-2 text-sm font-semibold text-white focus:outline-none focus:border-teal-400">
+                <option value="Terpasang">Terpasang [Hijau]</option>
+                <option value="Belum Dipasang">Belum Dipasang [Abu-abu]</option>
+                <option value="Sedang Diperbaiki">Sedang Diperbaiki [Kuning]</option>
+                <option value="Rusak">Rusak [Oranye]</option>
+                <option value="Hilang">Hilang [Merah Berkedip]</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold uppercase text-slate-400 mb-1.5 tracking-wider">Nama Atribut / Media Promkes</label>
+              <input type="text" id="input-media" placeholder="Contoh: Banner Pelayanan BPJS" class="w-full bg-navy-900 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-teal-400" required />
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase text-slate-400 mb-1.5 tracking-wider">Lokasi / Sektor Tiang</label>
+              <input type="text" id="input-lokasi" placeholder="Contoh: Depan Gedung IGD" class="w-full bg-navy-900 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-teal-400" required />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold uppercase text-slate-400 mb-1.5 tracking-wider">Nama Petugas Pemasang</label>
+              <input type="text" id="input-pemasang" placeholder="Nama Vendor / Staff Lapangan" class="w-full bg-navy-900 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-teal-400" required />
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase text-slate-400 mb-1.5 tracking-wider">Penanggung Jawab (PJ)</label>
+              <input type="text" id="input-pj" placeholder="Nama Tim Humas/Marketing" class="w-full bg-navy-900 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-teal-400" required />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-bold uppercase text-slate-400 mb-1.5 tracking-wider">Tanggal Mulai Pemasangan</label>
+              <input type="date" id="input-tgl-pasang" class="w-full bg-navy-900 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-teal-400" required />
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase text-slate-400 mb-1.5 tracking-wider">Estimasi Tanggal Copot</label>
+              <input type="date" id="input-tgl-copot" class="w-full bg-navy-900 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-teal-400" required />
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase text-slate-400 mb-1.5 tracking-wider">Dokumentasi Foto Atribut</label>
+              <input type="file" id="input-foto" accept="image/*" class="w-full bg-navy-900 border border-white/10 rounded-xl px-2 py-1.5 text-xs text-slate-300 focus:outline-none file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-teal-500/20 file:text-teal-300 hover:file:bg-teal-500/30 cursor-pointer" />
+            </div>
+          </div>
+
+          <div class="pt-2">
+            <button type="submit" class="w-full bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 text-navy-950 font-bold py-3 px-4 rounded-xl transition text-center text-sm shadow-md flex items-center justify-center gap-2">
+              <i data-lucide="save" class="h-4 w-4"></i> Sinkronisasi ke Dashboard &amp; Simpan Lokal
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- CARA PENGGUNAAN LEAN SIDEBAR -->
+      <div class="glass-panel p-6 rounded-3xl flex flex-col justify-between">
+        <div class="space-y-4">
+          <h3 class="font-display font-bold text-base text-white flex items-center gap-2 border-b border-white/5 pb-2">
+            <i data-lucide="help-circle" class="text-teal-400 h-4 w-4"></i> Petunjuk Operasional
+          </h3>
+          <ul class="space-y-3 text-xs text-slate-300">
+            <li class="flex gap-2"><span class="text-teal-400 font-bold">1.</span> <span>Pembaruan data di atas otomatis disimpan pada penyimpanan lokal browser perangkat Anda.</span></li>
+            <li class="flex gap-2"><span class="text-teal-400 font-bold">2.</span> <span>Status <strong class="text-rose-400">Hilang</strong> akan memicu indikator bahaya visual berkedip merah terang pada grid node peninjauan.</span></li>
+            <li class="flex gap-2"><span class="text-teal-400 font-bold">3.</span> <span>Klik ikon edit (<i data-lucide="edit-2" class="inline h-3 w-3"></i>) di setiap pojok kartu tiang untuk memuat data tiang tersebut secara otomatis ke dalam formulir pengisian.</span></li>
+          </ul>
+        </div>
+        <div class="pt-6 border-t border-white/5 text-center">
+          <p class="text-[10px] text-slate-500 font-mono">SIMPORA Production v2.0 // Zero Budget Architectural Solution</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Notification Toast Container -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
+
+  <!-- ==========================================
+        CORE JAVASCRIPT ARCHITECTURE
+  =========================================== -->
+  <script>
+    // Lokasi master konseptual bawaan tiang RS
+    const defaultLokasi = [
+      "Gerbang Utama Sektor Barat", "Akses Parkir Utama Zona A", "Jalur Selasar Poliklinik Eksekutif",
+      "Pintu Keluar Logistik Gedung B", "Lobby Utama Drop-off", "Samping Gedung Penunjang Medis",
+      "Taman Promkes Sentral", "Akses Utama Driver IGD", "Halaman Depan Laboratorium", "Pintu Keluar Sektor Timur"
+    ];
+
+    // Placeholder SVG Gambar Estetik (Executive Slate Theme)
+    const imgPlaceholder = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='160' viewBox='0 0 300 160'><rect width='100%' height='100%' fill='%230c1830'/><text x='50%' y='50%' font-family='sans-serif' font-size='12' fill='%235878b1' text-anchor='middle'>Tidak Ada Dokumentasi Foto</text></svg>";
+
+    // Inisialisasi Database Lokal
+    let appData = JSON.parse(localStorage.getItem('simpora_v2_db'));
+
+    if (!appData) {
+      appData = Array.from({ length: 10 }, (_, i) => ({
+        id: i + 1,
+        lokasi: defaultLokasi[i],
+        umbulA: { media: "Spanduk Edukasi Promkes A", status: "Terpasang", pemasang: "Internal Humas", pj: "Rika S.", tglPasang: "2026-06-01", tglCopot: "2026-07-01", foto: imgPlaceholder },
+        umbulB: { media: "Umbul-Umbul Layanan Promosi B", status: "Belum Dipasang", pemasang: "Vendor Promedia", pj: "Tomi A.", tglPasang: "2026-06-15", tglCopot: "2026-08-15", foto: imgPlaceholder }
+      }));
+      localStorage.setItem('simpora_v2_db', JSON.stringify(appData));
+    }
+
+    // Jalankan komponen saat dokumen siap
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      initClock();
+      syncFormLocation();
+      renderDashboard();
+    });
+
+    // Sinkronisasi Jam Realtime
+    function initClock() {
+      const clockEl = document.getElementById('live-clock');
+      setInterval(() => {
+        const d = new Date();
+        clockEl.innerText = d.toTimeString().split(' ')[0] + " WIB";
+      }, 1000);
+    }
+
+    // Otomatisasi isi nama lokasi form berdasarkan nomor tiang pilihan
+    function syncFormLocation() {
+      const idSelected = document.getElementById('input-tiang').value;
+      const tiangObj = appData.find(t => t.id == idSelected);
+      if (tiangObj) {
+        document.getElementById('input-lokasi').value = tiangObj.lokasi;
+      }
+    }
+
+    // Membaca muatan data kartu tiang untuk disunting langsung di form bawah
+    function loadToForm(tiangId, slot) {
+      const tiangObj = appData.find(t => t.id == tiangId);
+      if (!tiangObj) return;
+
+      const dataSlot = tiangObj[slot];
+      document.getElementById('input-tiang').value = tiangId;
+      document.getElementById('input-slot').value = slot;
+      document.getElementById('input-status').value = dataSlot.status;
+      document.getElementById('input-media').value = dataSlot.media;
+      document.getElementById('input-lokasi').value = tiangObj.lokasi;
+      document.getElementById('input-pemasang').value = dataSlot.pemasang;
+      document.getElementById('input-pj').value = dataSlot.pj;
+      document.getElementById('input-tgl-pasang').value = dataSlot.tglPasang;
+      document.getElementById('input-tgl-copot').value = dataSlot.tglCopot;
+
+      document.getElementById('form-section').scrollIntoView({ behavior: 'smooth' });
+      showToast(`Data Tiang 0${tiangId} (${slot === 'umbulA' ? 'Umbul A' : 'Umbul B'}) dimuat ke formulir!`);
+    }
+
+    // Manajemen Reset Data Sistem
+    function resetToDefault() {
+      if (confirm("Apakah Anda yakin ingin menyetel ulang data ke setelan bawaan pabrik?")) {
+        localStorage.removeItem('simpora_v2_db');
+        location.reload();
+      }
+    }
+
+    // Render Ulang Matriks Visual Komponen Dashboard
+    function renderDashboard() {
+      const gridContainer = document.getElementById('tiang-grid');
+      gridContainer.innerHTML = '';
+
+      let countTerpasang = 0;
+      let countDiperbaiki = 0;
+      let countRusak = 0;
+      let countHilang = 0;
+
+      appData.forEach(tiang => {
+        // Kalkulasi Metrics
+        [tiang.umbulA.status, tiang.umbulB.status].forEach(st => {
+          if (st === "Terpasang") countTerpasang++;
+          if (st === "Sedang Diperbaiki") countDiperbaiki++;
+          if (st === "Rusak") countRusak++;
+          if (st === "Hilang") countHilang++;
+        });
+
+        // Deteksi Alarm Bahaya Tiang (Jika ada salah satu komponen yang hilang)
+        const isEmergency = (tiang.umbulA.status === "Hilang" || tiang.umbulB.status === "Hilang");
+
+        // Skema Desain Badge Status Kontrol
+        const getBadgeClass = (st) => {
+          if (st === "Terpasang") return "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+          if (st === "Sedang Diperbaiki") return "bg-amber-500/10 text-amber-400 border border-amber-500/20";
+          if (st === "Rusak") return "bg-orange-500/10 text-orange-400 border border-orange-500/20";
+          if (st === "Hilang") return "bg-rose-500/20 text-rose-400 border border-rose-500/40 pulse-danger font-bold";
+          return "bg-slate-500/10 text-slate-400 border border-white/5";
+        };
+
+        const renderSlotHtml = (slotKey, slotName) => {
+          const slot = tiang[slotKey];
+          return `
+            <div class="p-3 bg-navy-900/60 rounded-xl border border-white/5 space-y-2 relative">
+              <div class="flex justify-between items-start">
+                <span class="text-[10px] font-bold text-slate-400 tracking-wide">${slotName}</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded font-mono ${getBadgeClass(slot.status)}">${slot.status}</span>
+              </div>
+              <p class="text-xs font-bold text-white truncate" title="${slot.media}">${slot.media || 'Kosong / Belum Diisi'}</p>
+              
+              <!-- Gambar Thumbnail Medias -->
+              <div class="h-20 w-full rounded-lg overflow-hidden bg-navy-950 relative border border-white/5 group">
+                <img src="${slot.foto || imgPlaceholder}" class="h-full w-full object-cover group-hover:scale-105 transition duration-300" alt="Foto Atribut" />
+              </div>
+
+              <!-- Parameter Detail Atribut Lapangan -->
+              <div class="text-[10px] text-slate-400 space-y-0.5 font-sans pt-1">
+                <div class="truncate">PJ: <strong class="text-slate-300">${slot.pj}</strong></div>
+                <div class="text-[9px] font-mono text-slate-500 flex justify-between pt-1 border-t border-white/5">
+                  <span>P: ${slot.tglPasang || '-'}</span>
+                  <span>C: ${slot.tglCopot || '-'}</span>
+                </div>
+              </div>
+
+              <!-- Tombol Edit Quick Action Tersemat -->
+              <button onclick="loadToForm(${tiang.id}, '${slotKey}')" class="absolute bottom-9 right-2 p-1 rounded-md bg-navy-950/90 text-teal-400 hover:text-white border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity" title="Sunting Slot Ini">
+                <i data-lucide="edit-2" class="h-3 w-3"></i>
+              </button>
+            </div>
+          `;
+        };
+
+        // Output Render Node Pemantauan Mandiri
+        gridContainer.innerHTML += `
+          <div class="glass-panel p-4 rounded-2xl flex flex-col justify-between space-y-4 transition hover:border-white/15 relative group ${isEmergency ? 'ring-1 ring-rose-500/50 shadow-lg shadow-rose-950/20' : ''}">
+            <div>
+              <!-- Header Tiang ID -->
+              <div class="flex items-center justify-between border-b border-white/5 pb-2 mb-2">
+                <div class="flex items-center gap-1.5">
+                  <div class="h-2 w-2 rounded-full ${isEmergency ? 'bg-rose-500 pulse-danger' : 'bg-teal-400'}"></div>
+                  <span class="text-xs font-mono font-bold text-white tracking-wide">NODE // 0${tiang.id}</span>
+                </div>
+                <span class="text-[9px] font-mono text-slate-500">ID-T${tiang.id}</span>
+              </div>
+
+              <!-- Judul Koordinat Lokasi Fisik -->
+              <p class="text-xs font-bold text-teal-400 flex items-center gap-1 mb-3" title="${tiang.lokasi}">
+                <i data-lucide="map-pin" class="h-3 w-3 flex-shrink-0"></i> 
+                <span class="truncate">${tiang.lokasi}</span>
+              </p>
+
+              <!-- Grid Berisi Slot Komponen Kembar (A & B) -->
+              <div class="grid grid-cols-1 gap-3">
+                ${renderSlotHtml('umbulA', 'UMBUL A')}
+                ${renderSlotHtml('umbulB', 'UMBUL B')}
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      // Sinkronisasi Komponen Indikator Atas (KPI Widget Panel)
+      document.getElementById('kpi-terpasang').innerText = countTerpasang;
+      document.getElementById('kpi-diperbaiki').innerText = countDiperbaiki;
+      document.getElementById('kpi-rusak').innerText = countRusak;
+      document.getElementById('kpi-hilang').innerText = countHilang;
+
+      lucide.createIcons();
+    }
+
+    // Pemrosesan Pengiriman Formulir Manajemen Data
+    function handleFormSubmit(e) {
+      e.preventDefault();
+
+      const idSelected = parseInt(document.getElementById('input-tiang').value);
+      const slotSelected = document.getElementById('input-slot').value;
+      const fileInput = document.getElementById('input-foto');
+
+      const targetTiang = appData.find(t => t.id === idSelected);
+      if (!targetTiang) return;
+
+      // Ambil nilai isian form standar teks
+      targetTiang.lokasi = document.getElementById('input-lokasi').value;
+      
+      const updateDataSlot = () => {
+        targetTiang[slotSelected].status = document.getElementById('input-status').value;
+        targetTiang[slotSelected].media = document.getElementById('input-media').value;
+        targetTiang[slotSelected].pemasang = document.getElementById('input-pemasang').value;
+        targetTiang[slotSelected].pj = document.getElementById('input-pj').value;
+        targetTiang[slotSelected].tglPasang = document.getElementById('input-tgl-pasang').value;
+        targetTiang[slotSelected].tglCopot = document.getElementById('input-tgl-copot').value;
+
+        // Tulis ulang basis data lokal peramban (LocalStorage)
+        localStorage.setItem('simpora_v2_db', JSON.stringify(appData));
+        renderDashboard();
+        showToast(`✔ Sukses mengamankan data Node Tiang 0${idSelected}!`);
+        document.getElementById('simpora-form').reset();
+        syncFormLocation();
+      };
+
+      // Konversi Gambar ke skema Base64 Teks jika tim lapangan mengunggah berkas/foto kamera
+      if (fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          targetTiang[slotSelected].foto = event.target.result;
+          updateDataSlot();
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+      } else {
+        // Jika tidak upload foto baru, pertahankan foto lama atau bawaan placeholder
+        updateDataSlot();
+      }
+    }
+
+    // Toast Alert Generator System
+    function showToast(message) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = "p-4 rounded-xl bg-navy-900 border border-teal-500/30 text-white text-xs font-semibold shadow-2xl transition duration-300 pointer-events-auto transform translate-y-2 opacity-0";
+      toast.innerText = message;
+      
+      container.appendChild(toast);
+      
+      // Animasi Transisi Masuk
+      setTimeout(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      }, 50);
+
+      // Animasi Keluar Otomatis
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+  </script>
+</body>
+</html>
